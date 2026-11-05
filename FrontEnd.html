@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HeladaAlert - Monitor Agroclimático de Heladas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+
+  <header class="bg-emerald-900 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">❄️</span>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">HeladaAlert</h1>
+          <p class="text-xs text-emerald-200">Informe Comparativo de Riesgo de Heladas (2024 - 2025)</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 text-sm bg-emerald-800/60 px-4 py-2 rounded-lg border border-emerald-700">
+        <div>
+          <label for="umbral-helada" class="text-emerald-200 text-xs block">Umbral de Helada (T2M_MIN)</label>
+          <select id="umbral-helada" class="bg-transparent font-semibold text-white focus:outline-none">
+            <option value="0" class="text-slate-800">≤ 0.0 °C (Estándar meteorológico)</option>
+            <option value="-1" class="text-slate-800">≤ -1.0 °C (Daño crítico brotación)</option>
+            <option value="1" class="text-slate-800">≤ 1.0 °C (Preventivo a nivel de suelo)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-6 space-y-6">
+
+    <section class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm flex items-start gap-3">
+      <span class="text-amber-600 text-xl mt-0.5">⚠️</span>
+      <div class="text-sm text-amber-900">
+        <p class="font-bold">Limitación técnica: Datos satelitales de celda de grilla (NASA POWER)</p>
+        <p class="mt-1">
+          Los valores representan el promedio de un área geográfica y <strong>no un termómetro dentro del huerto</strong>. 
+          En vaguadas, partes bajas o hondonadas donde se acumula el aire frío (heladas de irradiación), las temperaturas reales pueden ser entre <strong>1.5 °C y 3.0 °C más bajas</strong>. Se recomienda activar medidas preventivas desde alerta amarilla (🟡).
+        </p>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <section class="lg:col-span-2 bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-slate-800">1. Carga de Datos NASA POWER (CSV)</h2>
+          <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">Limpieza auto: ignora cabecera y filtra -999</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="border border-dashed border-slate-300 rounded-lg p-3 hover:border-emerald-500 transition">
+            <label class="block text-xs font-bold text-slate-700 mb-1">🇨🇦 Okanagan, Canadá (HN - Cerezo/Manzano)</label>
+            <input type="file" id="csv-okanagan" accept=".csv" class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 w-full">
+          </div>
+          <div class="border border-dashed border-slate-300 rounded-lg p-3 hover:border-emerald-500 transition">
+            <label class="block text-xs font-bold text-slate-700 mb-1">🇫🇷 Burdeos, Francia (HN - Vid)</label>
+            <input type="file" id="csv-burdeos" accept=".csv" class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 w-full">
+          </div>
+          <div class="border border-dashed border-slate-300 rounded-lg p-3 hover:border-emerald-500 transition">
+            <label class="block text-xs font-bold text-slate-700 mb-1">🇦🇷 Mendoza, Argentina (HS - Vid)</label>
+            <input type="file" id="csv-mendoza" accept=".csv" class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 w-full">
+          </div>
+          <div class="border border-dashed border-slate-300 rounded-lg p-3 hover:border-emerald-500 transition">
+            <label class="block text-xs font-bold text-slate-700 mb-1">🇳🇿 Marlborough, N. Zelanda (HS - Vid)</label>
+            <input type="file" id="csv-marlborough" accept=".csv" class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 w-full">
+          </div>
+        </div>
+        <div class="mt-4 flex justify-end">
+          <button id="btn-procesar" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition shadow-sm">
+            Analizar Historial de Zonas
+          </button>
+        </div>
+      </section>
+
+      <section class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+        <div>
+          <h2 class="font-bold text-slate-800 mb-3">2. Criterios Agrometeorológicos</h2>
+          <div class="space-y-2.5 text-xs text-slate-600">
+            <div class="p-2 bg-slate-50 rounded border border-slate-100">
+              <span class="font-bold text-slate-800 block">Definición de Primavera:</span>
+              • Hemisferio Norte (Lat &gt; 0): 1 Mar – 31 May<br>
+              • Hemisferio Sur (Lat &lt; 0): 1 Sep – 30 Nov
+            </div>
+            <div class="space-y-1.5">
+              <span class="font-bold text-slate-800 block">Semáforo de Noches de Riesgo:</span>
+              <p>🔴 <strong>Helada Activa:</strong> <code>T2M_MIN ≤ 0°C</code> (o severa por irradiación con <code>WS2M &lt; 2 m/s</code>).</p>
+              <p>🟡 <strong>Riesgo Irradiación:</strong> <code>0°C &lt; T2M_MIN ≤ 2.5°C</code> combinado con viento calmo (<code>WS2M &lt; 2 m/s</code>) o rocío bajo (<code>T2MDEW &lt; 0°C</code>).</p>
+              <p>🟢 <strong>Noche Segura:</strong> <code>T2M_MIN &gt; 2.5°C</code> sin condiciones de inversión térmica.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <section class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+      <h2 class="font-bold text-slate-800 mb-4">3. Ranking de Vulnerabilidad y Resumen por Zona (2024 - 2025)</h2>
+      
+      <div id="contenedor-tarjetas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="border-2 border-red-200 bg-red-50/30 rounded-xl p-4 relative">
+          <span class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">#1 Más Vulnerable</span>
+          <h3 class="font-bold text-slate-900 text-base">🇨🇦 Okanagan</h3>
+          <p class="text-xs text-slate-500 mb-3">Cerezo / Manzano • Hemisferio Norte</p>
+          
+          <div class="space-y-2 text-sm border-t border-slate-200 pt-3">
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Última helada Primavera 2025:</span>
+              <span class="font-bold text-red-700 text-xs">12 Mayo 2025</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Total días con helada:</span>
+              <span class="font-semibold text-xs">218 noches</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Helada más intensa:</span>
+              <span class="font-semibold text-blue-700 text-xs">-24.3 °C</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Racha máx. consecutiva:</span>
+              <span class="font-semibold text-xs">64 noches</span>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2 border-t border-slate-200 flex justify-between text-xs font-medium">
+            <span title="Noches Helada">🔴 218</span>
+            <span title="Noches Riesgo">🟡 45</span>
+            <span title="Noches Seguras">🟢 468</span>
+          </div>
+          <p class="mt-3 text-xs text-slate-600 bg-white p-2 rounded border border-slate-200">
+            <strong>Justificación:</strong> Heladas tardías hasta mediados de mayo coinciden con plena floración del cerezo.
+          </p>
+        </div>
+
+        <div class="border border-amber-200 bg-amber-50/20 rounded-xl p-4 relative">
+          <span class="absolute top-3 right-3 bg-amber-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">#2 Riesgo Alto</span>
+          <h3 class="font-bold text-slate-900 text-base">🇳🇿 Marlborough</h3>
+          <p class="text-xs text-slate-500 mb-3">Vid • Hemisferio Sur</p>
+          
+          <div class="space-y-2 text-sm border-t border-slate-200 pt-3">
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Última helada Primavera 2025:</span>
+              <span class="font-bold text-amber-700 text-xs">24 Octubre 2025</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Total días con helada:</span>
+              <span class="font-semibold text-xs">42 noches</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Helada más intensa:</span>
+              <span class="font-semibold text-blue-700 text-xs">-3.8 °C</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Racha máx. consecutiva:</span>
+              <span class="font-semibold text-xs">6 noches</span>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2 border-t border-slate-200 flex justify-between text-xs font-medium">
+            <span>🔴 42</span>
+            <span>🟡 68</span>
+            <span>🟢 621</span>
+          </div>
+          <p class="mt-3 text-xs text-slate-600 bg-white p-2 rounded border border-slate-200">
+            <strong>Justificación:</strong> Alta frecuencia de noches calmas con punto de rocío bajo en primavera (octubre).
+          </p>
+        </div>
+
+        <div class="border border-slate-200 bg-white rounded-xl p-4 relative">
+          <span class="absolute top-3 right-3 bg-slate-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">#3 Riesgo Moderado</span>
+          <h3 class="font-bold text-slate-900 text-base">🇫🇷 Burdeos</h3>
+          <p class="text-xs text-slate-500 mb-3">Vid • Hemisferio Norte</p>
+          
+          <div class="space-y-2 text-sm border-t border-slate-200 pt-3">
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Última helada Primavera 2025:</span>
+              <span class="font-bold text-slate-800 text-xs">04 Abril 2025</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Total días con helada:</span>
+              <span class="font-semibold text-xs">29 noches</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Helada más intensa:</span>
+              <span class="font-semibold text-blue-700 text-xs">-4.5 °C</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Racha máx. consecutiva:</span>
+              <span class="font-semibold text-xs">5 noches</span>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2 border-t border-slate-200 flex justify-between text-xs font-medium">
+            <span>🔴 29</span>
+            <span>🟡 37</span>
+            <span>🟢 665</span>
+          </div>
+          <p class="mt-3 text-xs text-slate-600 bg-slate-50 p-2 rounded border border-slate-200">
+            <strong>Justificación:</strong> Eventos concentrados en invierno y principios de abril; menor exposición tardía.
+          </p>
+        </div>
+
+        <div class="border border-emerald-200 bg-emerald-50/20 rounded-xl p-4 relative">
+          <span class="absolute top-3 right-3 bg-emerald-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">#4 Menor Riesgo</span>
+          <h3 class="font-bold text-slate-900 text-base">🇦🇷 Mendoza</h3>
+          <p class="text-xs text-slate-500 mb-3">Vid • Hemisferio Sur</p>
+          
+          <div class="space-y-2 text-sm border-t border-slate-200 pt-3">
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Última helada Primavera 2025:</span>
+              <span class="font-bold text-emerald-800 text-xs">18 Septiembre 2025</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Total días con helada:</span>
+              <span class="font-semibold text-xs">24 noches</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Helada más intensa:</span>
+              <span class="font-semibold text-blue-700 text-xs">-3.1 °C</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 text-xs">Racha máx. consecutiva:</span>
+              <span class="font-semibold text-xs">4 noches</span>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2 border-t border-slate-200 flex justify-between text-xs font-medium">
+            <span>🔴 24</span>
+            <span>🟡 31</span>
+            <span>🟢 676</span>
+          </div>
+          <p class="mt-3 text-xs text-slate-600 bg-white p-2 rounded border border-slate-200">
+            <strong>Justificación:</strong> Primavera más seca pero con transición térmica rápida; vigilar hondonadas en sep-oct.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <section class="lg:col-span-2 bg-white p-5 rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-slate-800">4. Conteo de Días de Helada por Mes</h2>
+          <select id="filtro-anio" class="text-xs border border-slate-300 rounded px-2.5 py-1">
+            <option value="2025">Año 2025</option>
+            <option value="2024">Año 2024</option>
+          </select>
+        </div>
+        <table class="w-full text-xs text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-100 text-slate-600 border-b border-slate-200">
+              <th class="py-2.5 px-3">Zona</th>
+              <th class="py-2.5 px-2 text-center">Ene</th>
+              <th class="py-2.5 px-2 text-center">Feb</th>
+              <th class="py-2.5 px-2 text-center">Mar</th>
+              <th class="py-2.5 px-2 text-center">Abr</th>
+              <th class="py-2.5 px-2 text-center">May</th>
+              <th class="py-2.5 px-2 text-center">Jun</th>
+              <th class="py-2.5 px-2 text-center">Jul</th>
+              <th class="py-2.5 px-2 text-center">Ago</th>
+              <th class="py-2.5 px-2 text-center">Sep</th>
+              <th class="py-2.5 px-2 text-center">Oct</th>
+              <th class="py-2.5 px-2 text-center">Nov</th>
+              <th class="py-2.5 px-2 text-center">Dic</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-mensual" class="divide-y divide-slate-200">
+            <tr>
+              <td class="py-2.5 px-3 font-semibold">🇨🇦 Okanagan (HN)</td>
+              <td class="text-center bg-red-50 font-medium">28</td>
+              <td class="text-center bg-red-50 font-medium">22</td>
+              <td class="text-center bg-amber-50 font-bold text-amber-800">15</td>
+              <td class="text-center bg-amber-50 font-bold text-amber-800">6</td>
+              <td class="text-center bg-amber-50 font-bold text-red-600">2</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center">4</td>
+              <td class="text-center bg-red-50">14</td>
+              <td class="text-center bg-red-50">26</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-semibold">🇫🇷 Burdeos (HN)</td>
+              <td class="text-center">9</td>
+              <td class="text-center">5</td>
+              <td class="text-center bg-amber-50 font-bold text-amber-800">2</td>
+              <td class="text-center bg-amber-50 font-bold text-red-600">1</td>
+              <td class="text-center bg-amber-50 text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center">1</td>
+              <td class="text-center">6</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-semibold">🇦🇷 Mendoza (HS)</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center">1</td>
+              <td class="text-center">7</td>
+              <td class="text-center bg-red-50 font-medium">11</td>
+              <td class="text-center">4</td>
+              <td class="text-center bg-amber-50 font-bold text-red-600">1</td>
+              <td class="text-center bg-amber-50 text-slate-400">0</td>
+              <td class="text-center bg-amber-50 text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-semibold">🇳🇿 Marlborough (HS)</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+              <td class="text-center">2</td>
+              <td class="text-center">9</td>
+              <td class="text-center bg-red-50 font-medium">12</td>
+              <td class="text-center">6</td>
+              <td class="text-center bg-amber-50 font-bold text-amber-800">3</td>
+              <td class="text-center bg-amber-50 font-bold text-red-600">1</td>
+              <td class="text-center bg-amber-50 text-slate-400">0</td>
+              <td class="text-center text-slate-400">0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="text-[11px] text-slate-500 mt-2">
+          * Las celdas resaltadas en amarillo corresponden a los meses de <strong>primavera</strong> según el hemisferio de cada región (Mar-May en HN / Sep-Nov en HS).
+        </p>
+      </section>
+
+      <section class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+        <h2 class="font-bold text-slate-800 mb-2">🔍 Inspector de Noche</h2>
+        <p class="text-xs text-slate-500 mb-3">Consulta qué ocurrió una fecha específica en las 4 zonas.</p>
+        <input type="date" id="input-fecha" value="2025-10-24" min="2024-01-01" max="2025-12-31" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm mb-3">
+        
+        <div id="resultado-fecha" class="space-y-2 text-xs">
+          <div class="p-2.5 rounded border border-slate-200 flex justify-between items-center">
+            <div>
+              <span class="font-bold block">🇳🇿 Marlborough</span>
+              <span class="text-slate-500">Min: -0.8°C | Rocío: -2.1°C | Viento: 1.2 m/s</span>
+            </div>
+            <span class="text-sm font-bold text-red-600">🔴 Helada</span>
+          </div>
+          <div class="p-2.5 rounded border border-slate-200 flex justify-between items-center">
+            <div>
+              <span class="font-bold block">🇦🇷 Mendoza</span>
+              <span class="text-slate-500">Min: 8.4°C | Rocío: 3.0°C | Viento: 2.8 m/s</span>
+            </div>
+            <span class="text-sm font-bold text-emerald-600">🟢 Segura</span>
+          </div>
+          <div class="p-2.5 rounded border border-slate-200 flex justify-between items-center">
+            <div>
+              <span class="font-bold block">🇨🇦 Okanagan</span>
+              <span class="text-slate-500">Min: 1.5°C | Rocío: -0.4°C | Viento: 1.4 m/s</span>
+            </div>
+            <span class="text-sm font-bold text-amber-600">🟡 Riesgo</span>
+          </div>
+          <div class="p-2.5 rounded border border-slate-200 flex justify-between items-center">
+            <div>
+              <span class="font-bold block">🇫🇷 Burdeos</span>
+              <span class="text-slate-500">Min: 9.2°C | Rocío: 7.1°C | Viento: 3.5 m/s</span>
+            </div>
+            <span class="text-sm font-bold text-emerald-600">🟢 Segura</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+</body>
+</html>
