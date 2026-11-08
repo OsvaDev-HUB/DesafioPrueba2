@@ -1,0 +1,39 @@
+# Revisa que cada PR traiga una entrada nueva en docs/bitacora/
+# (regla de la skill documentar-trabajo)
+name: Bitacora
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  bitacora:
+    name: Bitacora
+    runs-on: ubuntu-latest
+    # Los PR automaticos de Dependabot no escriben bitacora
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - name: Bajar el repo con historial
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Buscar una entrada nueva en la bitacora
+        env:
+          RAMA_BASE: ${{ github.base_ref }}
+        run: |
+          # Archivos agregados en este PR comparado con main
+          nuevos=$(git diff --diff-filter=A --name-only "origin/$RAMA_BASE...HEAD")
+
+          # Solo cuentan los .md de docs/bitacora/, sin la plantilla
+          entradas=$(echo "$nuevos" | grep -E '^docs/bitacora/[^/]+\.md$' | grep -v '/_plantilla\.md$' || true)
+
+          if [ -z "$entradas" ]; then
+            echo "::error::Este PR no trae una entrada nueva en docs/bitacora/."
+            echo "Copia docs/bitacora/_plantilla.md a docs/bitacora/AAAA-MM-DD-area-tarea.md y completala."
+            echo "Mas detalle en .agents/skills/documentar-trabajo/SKILL.md"
+            exit 1
+          fi
+
+          echo "Entradas de bitacora encontradas:"
+          echo "$entradas"
