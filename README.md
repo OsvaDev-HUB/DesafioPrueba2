@@ -1,6 +1,27 @@
 # DesafioPrueba2
 
-Proyecto del equipo para el hackathon.
+**AgroShift AI**: planificacion de rotaciones agricolas con datos de NASA POWER. Proyecto para el NASA Space Apps Challenge 2026 (reto "Field Shift"). La propuesta completa esta en `docs/propuesta/`.
+
+## Estructura del proyecto
+
+```
+DesafioPrueba2/
+├── frontend/    # React + TypeScript (mapa, formularios, graficos)
+├── backend/     # Python + FastAPI (clima NASA y motor de reglas)
+├── data/        # catalogo de cultivos y respaldo de datos NASA
+└── docs/        # propuesta, arquitectura, contexto, bitacora y decisiones
+```
+
+Cada carpeta tiene su propio README. Mas detalle en [docs/arquitectura.md](docs/arquitectura.md).
+
+## Documentar lo que hacemos
+
+Somos 5 personas y cada una trabaja con su agente. Para que todos sepamos en que va el resto:
+
+1. Antes de empezar, lee `docs/contexto/general.md`, el contexto de tu area y las ultimas entradas de `docs/bitacora/`.
+2. Al terminar, crea tu entrada en `docs/bitacora/` (copia `_plantilla.md`) y actualiza el contexto de tu area.
+
+Los agentes lo hacen solos porque `AGENTS.md` y `CLAUDE.md` los mandan a la skill `documentar-trabajo`. Igual revisa lo que escriben antes de hacer el PR.
 
 ## Reglas del repo
 
