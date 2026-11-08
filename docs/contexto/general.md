@@ -33,4 +33,6 @@ La meta de la demo: una persona sin conocimientos de programacion elige un punto
 
 Cambios que afectan a mas de un area. Lo mas nuevo arriba. Una linea por aviso, con fecha y area.
 
+- 2026-11-07 (general): todas las skills del equipo estan en `.agents/skills/` (con enlaces en `.claude/skills/`). Hagan `git pull` para tenerlas.
+
 - 2026-11-07 (general): el repo ahora es un monorepo. Antes de trabajar, lean `AGENTS.md` y sigan la skill `documentar-trabajo`.
