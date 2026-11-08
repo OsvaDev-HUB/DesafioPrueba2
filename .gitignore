@@ -1,0 +1,16 @@
+# Dependencias de Node (frontend)
+node_modules/
+dist/
+
+# Python (backend)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Variables de entorno (no subir claves)
+.env
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
