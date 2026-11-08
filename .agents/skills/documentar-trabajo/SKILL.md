@@ -37,7 +37,8 @@ docs/
    ```bash
    ls docs/bitacora | grep -v '^_' | sort | tail -5
    ```
-5. Si algo de lo que leiste contradice lo que te pidieron, avisale a la persona antes de seguir.
+5. Revisa la tabla de skills en `AGENTS.md` y carga las que sirvan para tu tarea (por ejemplo `fastapi` si vas a tocar la API).
+6. Si algo de lo que leiste contradice lo que te pidieron, avisale a la persona antes de seguir.
 
 ## Paso 2: mientras trabajas
 
