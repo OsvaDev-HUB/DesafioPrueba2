@@ -33,6 +33,8 @@ La meta de la demo: una persona sin conocimientos de programacion elige un punto
 
 Cambios que afectan a mas de un area. Lo mas nuevo arriba. Una linea por aviso, con fecha y area.
 
+- 2026-11-07 (general): nuevas skills `security-and-hardening`, `security-review` y `cloudflare`. Antes de abrir un PR con codigo, pidanle al agente que use `security-review`.
+
 - 2026-11-07 (general): nuevas skills `fastapi`, `pydantic`, `python-testing-patterns`, `deploy-to-vercel`, `tailwind-4-docs` y `accessibility`. Ojo: `deploy-to-vercel` intenta hacer commit y push solo; pidanle que no lo haga.
 
 - 2026-11-07 (general): todas las skills del equipo estan en `.agents/skills/` (con enlaces en `.claude/skills/`). Hagan `git pull` para tenerlas.
