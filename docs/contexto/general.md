@@ -33,6 +33,8 @@ La meta de la demo: una persona sin conocimientos de programacion elige un punto
 
 Cambios que afectan a mas de un area. Lo mas nuevo arriba. Una linea por aviso, con fecha y area.
 
+- 2026-11-07 (general): el check "Bitacora" quedo desactivado (los Actions no corren por un tema de facturacion de la cuenta). Ahora cada PR trae una plantilla con casillas; quien revisa confirma que haya entrada en la bitacora antes de aprobar.
+
 - 2026-11-07 (general): GitHub ahora bloquea pushes que traigan claves y avisa de librerias vulnerables (Dependabot). Las claves van siempre en `.env`, nunca en el codigo.
 
 - 2026-11-07 (general): cada PR a `main` ahora pasa por el check "Bitacora". Si el PR no trae una entrada nueva en `docs/bitacora/`, sale en rojo.

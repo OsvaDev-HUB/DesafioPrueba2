@@ -47,7 +47,7 @@ docs/
 
 ## Paso 3: al terminar (escribir)
 
-Haz esto antes del commit, para que la documentacion vaya en el mismo PR que el codigo. Si el PR no trae una entrada nueva en la bitacora, el check "Bitacora" de GitHub sale en rojo.
+Haz esto antes del commit, para que la documentacion vaya en el mismo PR que el codigo. La plantilla de PR (`.github/pull_request_template.md`) tiene una casilla para esto: marcala solo si de verdad agregaste la entrada.
 
 1. **Crea una entrada en la bitacora** copiando `docs/bitacora/_plantilla.md` a:
    ```
